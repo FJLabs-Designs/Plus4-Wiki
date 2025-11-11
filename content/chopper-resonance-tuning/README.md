@@ -77,7 +77,7 @@ Be mindful that full calibration of each axis will take upwards of 1.5-2hrs each
 
 ## Running the Calibrations
 
-The following steps assume that you are calibrating your **X-axis** motor and driver. To calibrate your Y-axis, replace all instances of `AXIS=X` with `AXIS=Y` in the commands below. All commands are run through the Fluidd console.
+The following steps assume that you are calibrating your **X-axis** motor and driver. Because of the Plus 4's CoreXY kinematics, regardless if you are calculating your X or Y axis, you will be running calculations for both drivers at the same time. Therefore, there is no need to specify an axis.
 
 ### Checking Vibrations
 
@@ -86,7 +86,7 @@ Before we run our Chopper calibration, we should first figure out at what speeds
 Run the following command in your console:
 
 ```
-CHOPPER_TUNE FIND_VIBRATIONS=1 AXIS=X
+CHOPPER_TUNE FIND_VIBRATIONS=1
 ```
 
 When this completes (~6-10min), you will have a HTML file found in `adxl_results/chopper_magnitude`. Download that file by right clicking it and clicking "Download". Open the HTML file in your browser and you will have a bar chart similar to the below.
@@ -107,7 +107,7 @@ When ready, run the following command to begin testing. The printer will make X-
 
 
 ```
-CHOPPER_TUNE MIN_SPEED=44 MAX_SPEED=44 AXIS=X
+CHOPPER_TUNE MIN_SPEED=44 MAX_SPEED=44
 ```
 
 Once this command has completed running, you will have two HTML files in the `adxl_results/chopper_magnitude` folder. Download that HTML that contains `sorted` in the name and open that file in your browser. You will have a large bar chart similar to the below:
@@ -178,10 +178,16 @@ Now that we have our final values, we can include them into our `printer.cfg` fi
 1. Edit your `printer.cfg` file and look for the section:
 
 ```
-[tmc2240 stepper_x]     # or stepper_y if you are calibrating Y-axis
+[tmc2240 stepper_x] 
 ```
 
-2. Add the following lines at the end of that section:
+and 
+
+```
+[tmc2240 stepper_y]
+```
+
+2. Add the following lines at the end of **each** section:
 
 ```
 driver_SGT: 1       # Do NOT change this line. It should be set to 1.
@@ -199,7 +205,7 @@ driver_TPFD: X      # Replace with your best TPFD value
 
 ### Finishing Up
 
-For best results, it's recommended to repeat the entire process for both X and Y axes. However, if you are lazy or otherwise short on time, you *can* repeat those parameter values for both axes at a cost of *slightly* reduced perfection. Both axes use the same motor and the same driver, so theoretically the values should be very close to each other, and oftentimes identical.
+With these new driver values in place, it is best to run an input shaper calibration again. This can be done either on the Plus 4's screen or by sending the macro `SHAPER_CALIBRATE` to your console.
 
 ### Credits
 
